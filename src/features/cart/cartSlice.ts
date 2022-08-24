@@ -1,6 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
-import cartItems from "../../cartItems";
 import { CartItemType } from "../../types";
 
 type InitialState = {
