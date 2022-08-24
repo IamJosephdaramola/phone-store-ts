@@ -1,7 +1,7 @@
 import React from "react";
 import CartItem from "./CartItem";
 import { useAppSelector, useAppDispatch } from "../hooks/hooks";
-import { clearCart } from "../features/cart/cartSlice";
+import { displayModal } from "../features/modal/modalSlice";
 
 const CartContainer = () => {
   const dispatch = useAppDispatch();
@@ -37,7 +37,7 @@ const CartContainer = () => {
         </div>
         <button
           onClick={() => {
-            dispatch(clearCart());
+            dispatch(displayModal(true));
           }}
           className="btn clear-btn"
         >

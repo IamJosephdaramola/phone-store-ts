@@ -5,3 +5,7 @@ export interface CartItemType {
   title: string;
   amount: number;
 }
+
+export interface ModalType {
+  isModalOpen: boolean;
+}

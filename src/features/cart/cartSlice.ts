@@ -1,4 +1,5 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import axios from "axios";
 import cartItems from "../../cartItems";
 import { CartItemType } from "../../types";
 
@@ -7,7 +8,10 @@ type InitialState = {
   amount: number;
   total: number;
   isLoading: boolean;
+  error: string;
 };
+
+const url = "https://course-api.com/react-useReducer-cart-project";
 
 const getTotal = (cartItems: CartItemType[]) => {
   const total = cartItems.reduce(
@@ -17,11 +21,24 @@ const getTotal = (cartItems: CartItemType[]) => {
   return parseFloat(total.toFixed(2));
 };
 
+export const getCartItems = createAsyncThunk(
+  "cart/getCartItems",
+  async (name, thunkAPI) => {
+    try {
+      const response = await axios.get(url);
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue("Something went wrong");
+    }
+  }
+);
+
 const initialState: InitialState = {
-  cartItems,
-  amount: cartItems.length,
-  total: getTotal(cartItems),
+  cartItems: [],
+  amount: 0,
+  total: 0,
   isLoading: true,
+  error: "",
 };
 
 const cartSlice = createSlice({
@@ -57,6 +74,38 @@ const cartSlice = createSlice({
         state.total = getTotal(state.cartItems);
       }
     },
+    // calculateTotal: (state) => {
+    //   let amount = 0;
+    //   let total = 0;
+    //   state.cartItems.forEach((item) => {
+    //     amount += item.amount;
+    //     total += parseFloat(item.price) * item.amount;
+    //   }
+    //   );
+    //   state.amount = amount;
+    //   state.total = parseFloat(total.toFixed(2));
+    // },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(getCartItems.pending, (state) => {
+      state.isLoading = true;
+    }),
+      builder.addCase(
+        getCartItems.fulfilled,
+        (state, action: PayloadAction<CartItemType[]>) => {
+          state.cartItems = action.payload;
+          state.amount = action.payload.length;
+          state.total = getTotal(action.payload);
+          state.isLoading = false;
+        }
+      ),
+      builder.addCase(
+        getCartItems.rejected,
+        (state, action: PayloadAction<any>) => {
+          state.isLoading = false;
+          state.error = action.payload || "Something went wrong";
+        }
+      );
   },
 });
 
@@ -65,5 +114,7 @@ export const {
   removeItem,
   increaseItem,
   decreaseItem,
+  // calculateTotal,
 } = cartSlice.actions;
+
 export default cartSlice.reducer;
